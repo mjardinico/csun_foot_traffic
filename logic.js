@@ -1,7 +1,7 @@
 // Creating the map of center of the desired location
 var map = L.map('map',{
     center: [34.239544, -118.529338],
-    zoom: 19
+    zoom: 21
 });
 
 // Add the tile layer street view (OpenStreetMap) only use this without the ESRI tile layer
