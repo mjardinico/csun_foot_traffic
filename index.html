@@ -29,13 +29,32 @@
 <body>
     <!-- -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    
+
+    <!-- Add dropdown element on the upper right corner of webpage-->
+    <div id="dayToggle" style="position: absolute; top: 10px; right: 10px; z-index: 1000; background:gray; border-radius: 5px;">
+        <!-- <label for="day">Select Day:</label> -->
+        <select id="day" onchange="updateHeatmap(this.value)">
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+            <option value="Sunday">Sunday</option>
+        </select>
+    </div>    
+
     <!-- Element to insert the map -->
     <div class="map-container">
         <h2>Campus Foot Traffic Heatmap</h2>
         <div id="map"></div>
     </div>
     <div id="marker"></div>
+    
     <script type="text/javascript" src="logic.js"></script>
+    
+
+
+    
 </body>
 </html>

@@ -21,7 +21,6 @@ var esriLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/service
     maxZoom: 17
 });
 
-
 // Create base map option
 var baseMaps = {
     "Street View": streetLayer,
@@ -31,10 +30,18 @@ var baseMaps = {
 // Add layer control to map
 L.control.layers(baseMaps).addTo(map);
 
-// var marker = L.marker([34.239544, -118.529338]).addTo(map);
+// Use the red pin marker from CDN
+const redIcon = L.icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  shadowSize: [41, 41]
+});
 
-// Add markers with popup images 
-L.marker([34.239544, -118.529338])
+// Add markers
+L.marker([34.240119, -118.529356], { icon: redIcon })
   .addTo(map)
   .bindPopup(`   
     <img src="images/csun_library.jpg" width="250;" />
@@ -44,7 +51,7 @@ L.marker([34.239544, -118.529338])
     </div>
 `);
 
-L.marker([34.239951,-118.524936])
+L.marker([34.239951,-118.524936], { icon: redIcon })
   .addTo(map)
   .bindPopup(`
     <img src="images/csun_src.jpg" width="250" />
@@ -54,7 +61,7 @@ L.marker([34.239951,-118.524936])
     </div>
 `);
 
-L.marker([34.240092,-118.527047])
+L.marker([34.240092,-118.527047], { icon: redIcon })
   .addTo(map)
   // .bindPopup('<img src="images/usu_sol_bldg.jpg" width="250" />');
   .bindPopup(`
@@ -65,7 +72,7 @@ L.marker([34.240092,-118.527047])
     </div>
 `);
 
-L.marker([34.239917,-118.527784])
+L.marker([34.239917,-118.527784], { icon: redIcon })
   .addTo(map)
   // .bindPopup('<img src="images/matador_statue.jpg" width="250" />');
   .bindPopup(`
@@ -91,12 +98,57 @@ L.marker([34.239917,-118.527784])
 
 // ], { radius: 20 }).addTo(map);
 
-d3.csv("data/footTrafficDatarev1.csv").then(data => {
-  const heatData = data.map(d => [
-    parseFloat(d.latitude),
-    parseFloat(d.longitude),
-    parseFloat(d.intensity)
-  ]).filter(row => row.every(val => !isNaN(val)));
+// Read the CSV data using D3 library
+// d3.csv("data/footTrafficDatarev1.csv").then(data => {
+//   const heatData = data.map(d => [
+//     parseFloat(d.latitude),
+//     parseFloat(d.longitude),
+//     parseFloat(d.intensity)
+//   ]).filter(row => row.every(val => !isNaN(val)));
 
-  L.heatLayer(heatData, { radius: 20 }).addTo(map);
-});
+//   L.heatLayer(heatData, { radius: 20 }).addTo(map);
+// });
+
+// Revise the reading of CSV in the above section
+let currentHeatLayer = null;
+
+function updateHeatmap(day) {
+  const fileMap = {
+    "Monday": "data/footTrafficDatarev1.csv",
+    "Tuesday": "data/footTrafficDatarev2.csv"
+    // "Wednesday": "data/footTrafficDatarev3.csv",
+    // "Thursday": "data/footTrafficDatarev4.csv",
+    // "Friday": "data/footTrafficDatarev5.csv",
+    // "Saturday": "data/footTrafficDatarev6.csv",
+    // "Sunday": "data/footTrafficDatarev7.csv"
+  };
+
+  const csvFile = fileMap[day];
+
+  if (!csvFile) {
+    console.error("Invalid day selected.");
+    return;
+  }
+
+  // Remove previous heat layer if it exists
+  if (currentHeatLayer) {
+    map.removeLayer(currentHeatLayer);
+  }
+
+  // Load new data
+  d3.csv(csvFile).then(data => {
+    const heatData = data.map(d => [
+      parseFloat(d.latitude),
+      parseFloat(d.longitude),
+      parseFloat(d.intensity)
+    ]).filter(row => row.every(val => !isNaN(val)));
+
+    currentHeatLayer = L.heatLayer(heatData, { radius: 20 }).addTo(map);
+  }).catch(err => {
+    console.error("Error loading CSV file:", err);
+  });
+}
+
+// Load the CSV file according to their day assignment
+updateHeatmap("Monday");
+updateHeatmap("Tuesday");
